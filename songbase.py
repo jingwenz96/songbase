@@ -16,7 +16,7 @@ class Artist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     about = db.Column(db.Text)
-    songs = db.relationship('Song', backref='artist')
+    songs = db.relationship('Song', backref='artist', cascade='delete')
 
 class Song(db.Model):
     __tablename__ = 'songs'
@@ -51,6 +51,33 @@ def add_artists():
         db.session.commit()
         return redirect(url_for('show_all_artists'))
 
+@app.route('/artist/edit/<int:id>', methods=['GET', 'POST'])
+def edit_song(id):
+    song = Song.query.filter_by(id=id).first()
+    artists = Artist.query.all()
+    if request.method == 'GET':
+        return render_template('artist-edit.html', artists=artists)
+    if request.method == 'POST':
+        # update data based on the form data
+        artist.name = request.form['name']
+        artist.about = request.form['about']
+        # update the database
+        db.session.commit()
+        return redirect(url_for('show_all_artists'))
+
+@app.route('/artist/delete/<int:id>', methods=['GET', 'POST'])
+def delete_artist(id):
+    artist = Artist.query.filter_by(id=id).first()
+    if request.method == 'GET':
+        return render_template('artist-delete.html', artist=artist)
+    if request.method == 'POST':
+        # delete the artist by id
+        # all related songs are deleted as well
+        db.session.delete(artist)
+        db.session.commit()
+        return redirect(url_for('show_all_artists'))
+
+
 
 @app.route('/form-demo', methods=['GET','POST'])
 def form_demo():
@@ -70,6 +97,26 @@ def form_demo():
 def show_all_songs():
     songs = Song.query.all()
     return render_template('song-all.html', songs=songs)
+
+@app.route('/song/add', methods=['GET', 'POST'])
+def add_songs():
+    artists = Artist.query.all()
+    if request.method == 'GET':
+        return render_template('song-add.html', artists=artists)
+    if request.method == 'POST':
+        # get data from the form
+        name = request.form['name']
+        year = request.form['year']
+        lyrics = request.form['lyrics']
+        artist_name = request.form['artist']
+        artist = Artist.query.filter_by(name=artist_name).first()
+        song = Song(name=name, year=year, lyrics=lyrics, artist=artist)
+
+        # insert the data into the database
+        db.session.add(song)
+        db.session.commit()
+        return redirect(url_for('show_all_songs'))
+
 
 ## @app.route('/songs')
 ## def get_all_songs():

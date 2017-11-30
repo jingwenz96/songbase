@@ -5,11 +5,10 @@ All Artists
 {% endblock%}
 
 {% block page_content %}
-<h1>This is page show all artists</h1>
+<h1>This is page for editing artists</h1>
 {% for artist in artists %}
     <h3>{{artist.name}}</h3>
     <p>{{artist.about}}</p>
-    <a href="/artists/edit/{{artist.id}}" role="button">Edit</a>
-    <a href="/artists/delete/{{artist.id}}" role="button">Delete</a>
+    <a href="song/edit/"></a>
 {% endfor %}
 {% endblock %}
